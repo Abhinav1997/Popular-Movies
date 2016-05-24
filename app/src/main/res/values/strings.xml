@@ -1,0 +1,16 @@
+<resources>
+    <string name="app_name">Popular Movies</string>
+
+    <string name="movie_poster">Movie Poster</string>
+
+    <string name="network_error">Check network and try again.</string>
+    <string name="network_error_button">Retry</string>
+
+    <string name="action_sort">Sort by</string>
+    <string name="action_sort_by_most_popular">Most popular</string>
+    <string name="action_sort_by_top_rated">Top rated</string>
+
+    <string name="release_date">Release date</string>
+    <string name="genre">Genre</string>
+    <string name="rating">Average rating</string>
+</resources>
