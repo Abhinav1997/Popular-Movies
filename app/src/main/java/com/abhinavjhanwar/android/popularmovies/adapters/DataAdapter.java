@@ -58,6 +58,7 @@ public class DataAdapter extends RecyclerView.Adapter<DataAdapter.ViewHolder> {
                 .with(context)
                 .load(URL)
                 .placeholder(R.drawable.placeholder)
+                .error(R.drawable.placeholder_error)
                 .into(viewHolder.imageView,
                         //TextView background set according to picasso palette color
                         PicassoPalette.with(URL, viewHolder.imageView)

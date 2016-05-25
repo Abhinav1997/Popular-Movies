@@ -58,14 +58,29 @@ public class MovieFragment extends Fragment {
     private final String mostPopular = "most-popular";
     private final String sortEntry = "SORT";
 
+    private int savedInstance = 0;
+
     public MovieFragment() {
         // Required empty public constructor
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        if (data != null) {
+            outState.putParcelableArrayList("movie-data", data);
+        }
+        super.onSaveInstanceState(outState);
     }
 
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+
+        if (savedInstanceState != null && savedInstanceState.containsKey("movie-data")) {
+            savedInstance = 1;
+            data = savedInstanceState.getParcelableArrayList("movie-data");
+        }
 
         //Get sort option, either most popular or top rated
         sortOption = PreferenceManager.getDefaultSharedPreferences(getActivity().getApplicationContext()).getString(sortEntry, mostPopular);
@@ -132,8 +147,10 @@ public class MovieFragment extends Fragment {
             @Override
             public void onResponse(Call<JSONResponse> call, Response<JSONResponse> response) {
                 JSONResponse jsonResponse = response.body();
-                data = new ArrayList<>(Arrays.asList(jsonResponse.getResults()));
-                if(getActivity() != null) {
+                if (savedInstance == 0 || data == null) {
+                    data = new ArrayList<>(Arrays.asList(jsonResponse.getResults()));
+                }
+                if (getActivity() != null) {
                     // Build adapter based on json entries
                     adapter = new DataAdapter(getActivity().getApplicationContext(), data);
                     recyclerView.setVisibility(View.GONE);
@@ -161,13 +178,12 @@ public class MovieFragment extends Fragment {
         // Creating and Building the Dialog
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setTitle("Sort by");
-        if(sortOption.equals(topRated)) {
+        if (sortOption.equals(topRated)) {
             i = 1;
         }
         builder.setSingleChoiceItems(items, i, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int item) {
-                switch(item)
-                {
+                switch (item) {
                     case 0:
                         PreferenceManager.getDefaultSharedPreferences(getActivity().getApplicationContext()).edit().putString(sortEntry, mostPopular).apply();
                         break;
@@ -197,7 +213,8 @@ public class MovieFragment extends Fragment {
 
     // When binding a fragment in onCreateView, set the views to null in onDestroyView.
     // Butter Knife has an unbind method to do this automatically.
-    @Override public void onDestroyView() {
+    @Override
+    public void onDestroyView() {
         super.onDestroyView();
         unbinder.unbind();
     }

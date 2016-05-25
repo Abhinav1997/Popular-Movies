@@ -77,6 +77,7 @@ public class ContentActivity extends AppCompatActivity {
                 .with(getApplicationContext())
                 .load(posterURL)
                 .placeholder(R.drawable.placeholder_content)
+                .error(R.drawable.placeholder_content_error)
                 .into(movieImage);
         releaseDate.setText(movieRelease);
         movieGenre.setText(genre);
