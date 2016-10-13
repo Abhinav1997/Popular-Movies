@@ -2,18 +2,33 @@ package com.abhinavjhanwar.android.popularmovies;
 
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.RatingBar;
 import android.widget.TextView;
 
+import com.abhinavjhanwar.android.popularmovies.adapters.TrailerAdapter;
+import com.abhinavjhanwar.android.popularmovies.api.MovieAPI;
+import com.abhinavjhanwar.android.popularmovies.utils.TrailerDetail;
+import com.abhinavjhanwar.android.popularmovies.utils.TrailerResponse;
 import com.ms.square.android.expandabletextview.ExpandableTextView;
 import com.squareup.picasso.Picasso;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
 
 public class ContentActivity extends AppCompatActivity {
 
@@ -31,6 +46,10 @@ public class ContentActivity extends AppCompatActivity {
     RatingBar ratingBar;
     @BindView(R.id.toolbar)
     Toolbar toolbar;
+    @BindView(R.id.trailer_rv)
+    RecyclerView trailerRv;
+    @BindView(R.id.trailerProgressBar)
+    ProgressBar trailerProgressBar;
 
     private String overView;
     private String posterURL;
@@ -38,6 +57,10 @@ public class ContentActivity extends AppCompatActivity {
     private String movieRelease;
     private String genre;
     private float rating = (float) 2.5;
+    private int id;
+
+    private ArrayList<TrailerDetail> data;
+    private TrailerAdapter adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,7 +69,7 @@ public class ContentActivity extends AppCompatActivity {
         ButterKnife.bind(this);
 
         setSupportActionBar(toolbar);
-        if(getSupportActionBar() != null) {
+        if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
 
@@ -65,7 +88,9 @@ public class ContentActivity extends AppCompatActivity {
         genre = getIntent().getStringExtra("genre");
         Bundle bundle = getIntent().getExtras();
         rating = bundle.getFloat("rating");
+        id = bundle.getInt("id");
 
+        loadJSON();
         initViews();
     }
 
@@ -82,5 +107,44 @@ public class ContentActivity extends AppCompatActivity {
         releaseDate.setText(movieRelease);
         movieGenre.setText(genre);
         ratingBar.setRating(rating);
+    }
+
+    public void loadJSON() {
+        String baseURL = "http://api.themoviedb.org";
+
+        // Use retrofit for loading URL and getting JSON
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl(baseURL)
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+
+        // Get JSON values, credits: https://www.learn2crack.com/2016/02/recyclerview-json-parsing.html
+        Call<TrailerResponse> call;
+        MovieAPI movieAPI = retrofit.create(MovieAPI.class);
+
+        call = movieAPI.getTrailers(Integer.toString(id), BuildConfig.MOVIE_DB_API_KEY);
+
+        call.enqueue(new Callback<TrailerResponse>() {
+            @Override
+            public void onResponse(Call<TrailerResponse> call, Response<TrailerResponse> response) {
+                TrailerResponse trailerResponse = response.body();
+                data = new ArrayList<>(Arrays.asList(trailerResponse.getResults()));
+                // Build adapter based on json entries
+                adapter = new TrailerAdapter(getApplicationContext(), data);
+                trailerRv.setVisibility(View.GONE);
+                if (adapter != null) {
+                    //Hide progressbar and then show recyclerview after it's loaded
+                    trailerRv.setLayoutManager(new LinearLayoutManager(getApplicationContext(), LinearLayoutManager.HORIZONTAL,false));
+                    trailerRv.setAdapter(adapter);
+                    trailerProgressBar.setVisibility(View.GONE);
+                    trailerRv.setVisibility(View.VISIBLE);
+                }
+            }
+
+            @Override
+            public void onFailure(Call<TrailerResponse> call, Throwable t) {
+                Log.d("Error", t.getMessage());
+            }
+        });
     }
 }

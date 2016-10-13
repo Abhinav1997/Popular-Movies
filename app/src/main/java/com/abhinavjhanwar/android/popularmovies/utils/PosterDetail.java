@@ -11,6 +11,7 @@ public class PosterDetail implements Parcelable {
     private String release_date;
     private int[] genre_ids;
     private float vote_average;
+    private int id;
 
     protected PosterDetail(Parcel in) {
         poster_path = in.readString();
@@ -19,6 +20,7 @@ public class PosterDetail implements Parcelable {
         release_date = in.readString();
         genre_ids = in.createIntArray();
         vote_average = in.readFloat();
+        id = in.readInt();
     }
 
     public static final Creator<PosterDetail> CREATOR = new Creator<PosterDetail>() {
@@ -57,6 +59,10 @@ public class PosterDetail implements Parcelable {
         return vote_average;
     }
 
+    public int getId() {
+        return id;
+    }
+
     @Override
     public int describeContents() {
         return 0;
@@ -70,5 +76,6 @@ public class PosterDetail implements Parcelable {
         dest.writeString(release_date);
         dest.writeIntArray(genre_ids);
         dest.writeFloat(vote_average);
+        dest.writeInt(id);
     }
 }

@@ -47,11 +47,10 @@ public class DataAdapter extends RecyclerView.Adapter<DataAdapter.ViewHolder> {
         final String overView = poster.get(i).getOverview();
         final String title = poster.get(i).getTitle();
         final String releaseDate = poster.get(i).getRelease_date();
-
         int genreId[] = poster.get(i).getGenre_ids();
         final String genre = getGenre(genreId[0]);
-
         final float rating = (poster.get(i).getVote_average()) / 2;
+        final int id = poster.get(i).getId();
 
         viewHolder.textView.setText(poster.get(i).getTitle());
         Picasso
@@ -72,6 +71,7 @@ public class DataAdapter extends RecyclerView.Adapter<DataAdapter.ViewHolder> {
                 //Set values to send to other activity and start it when cardview is clicked
                 Bundle bundle = new Bundle();
                 bundle.putFloat("rating", rating);
+                bundle.putInt("id", id);
                 Intent intent = new Intent(context, ContentActivity.class);
                 intent.putExtra("overview", overView);
                 intent.putExtra("poster", imageURL);

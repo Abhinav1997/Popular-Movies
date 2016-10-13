@@ -13,4 +13,6 @@
     <string name="release_date">Release date</string>
     <string name="genre">Genre</string>
     <string name="rating">Average rating</string>
+    <string name="trailers">Trailers</string>
+    <string name="trailer_preview">Trailer Preview</string>
 </resources>

@@ -18,13 +18,13 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ProgressBar;
 
+import com.abhinavjhanwar.android.popularmovies.BuildConfig;
 import com.abhinavjhanwar.android.popularmovies.adapters.DataAdapter;
 import com.abhinavjhanwar.android.popularmovies.utils.GridAutofitLayoutManager;
-import com.abhinavjhanwar.android.popularmovies.utils.JSONResponse;
-import com.abhinavjhanwar.android.popularmovies.interfaces.PopularInterface;
+import com.abhinavjhanwar.android.popularmovies.utils.MovieResponse;
+import com.abhinavjhanwar.android.popularmovies.api.MovieAPI;
 import com.abhinavjhanwar.android.popularmovies.utils.PosterDetail;
 import com.abhinavjhanwar.android.popularmovies.R;
-import com.abhinavjhanwar.android.popularmovies.interfaces.RatedInterface;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -54,8 +54,8 @@ public class MovieFragment extends Fragment {
     private AlertDialog levelDialog;
 
     private String sortOption;
-    private final String topRated = "top-rated";
-    private final String mostPopular = "most-popular";
+    private final String topRated = "top_rated";
+    private final String mostPopular = "popular";
     private final String sortEntry = "SORT";
 
     private int savedInstance = 0;
@@ -133,22 +133,21 @@ public class MovieFragment extends Fragment {
                 .build();
 
         // Get JSON values, credits: https://www.learn2crack.com/2016/02/recyclerview-json-parsing.html
-        Call<JSONResponse> call;
+        Call<MovieResponse> call;
+        MovieAPI movieAPI = retrofit.create(MovieAPI.class);
 
         if (sortOption.equals(topRated)) {
-            RatedInterface ratedInterface = retrofit.create(RatedInterface.class);
-            call = ratedInterface.getJSON();
+            call = movieAPI.getMovies(topRated, BuildConfig.MOVIE_DB_API_KEY);
         } else {
-            PopularInterface popularInterface = retrofit.create(PopularInterface.class);
-            call = popularInterface.getJSON();
+            call = movieAPI.getMovies(mostPopular, BuildConfig.MOVIE_DB_API_KEY);
         }
 
-        call.enqueue(new Callback<JSONResponse>() {
+        call.enqueue(new Callback<MovieResponse>() {
             @Override
-            public void onResponse(Call<JSONResponse> call, Response<JSONResponse> response) {
-                JSONResponse jsonResponse = response.body();
+            public void onResponse(Call<MovieResponse> call, Response<MovieResponse> response) {
+                MovieResponse movieResponse = response.body();
                 if (savedInstance == 0 || data == null) {
-                    data = new ArrayList<>(Arrays.asList(jsonResponse.getResults()));
+                    data = new ArrayList<>(Arrays.asList(movieResponse.getResults()));
                 }
                 if (getActivity() != null) {
                     // Build adapter based on json entries
@@ -165,7 +164,7 @@ public class MovieFragment extends Fragment {
             }
 
             @Override
-            public void onFailure(Call<JSONResponse> call, Throwable t) {
+            public void onFailure(Call<MovieResponse> call, Throwable t) {
                 Log.d("Error", t.getMessage());
             }
         });

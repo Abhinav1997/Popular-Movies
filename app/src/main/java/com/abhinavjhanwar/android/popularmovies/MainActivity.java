@@ -57,15 +57,17 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         protected Void doInBackground(Void... params) {
-            if(hasActiveInternetConnection()) {
+            if (hasActiveInternetConnection() && !isFinishing() && !isDestroyed()) {
                 getSupportFragmentManager().beginTransaction()
                         .add(R.id.container, new com.abhinavjhanwar.android.popularmovies.fragments.MovieFragment())
                         .commitAllowingStateLoss();
             } else {
                 //Show error when internet is not connected
-                getSupportFragmentManager().beginTransaction()
-                        .add(R.id.container, new com.abhinavjhanwar.android.popularmovies.fragments.NoNetworkFragment())
-                        .commitAllowingStateLoss();
+                if (!isFinishing() && !isDestroyed()) {
+                    getSupportFragmentManager().beginTransaction()
+                            .add(R.id.container, new com.abhinavjhanwar.android.popularmovies.fragments.NoNetworkFragment())
+                            .commitAllowingStateLoss();
+                }
             }
             return null;
         }
