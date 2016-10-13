@@ -12,8 +12,11 @@ import android.widget.ProgressBar;
 import android.widget.RatingBar;
 import android.widget.TextView;
 
+import com.abhinavjhanwar.android.popularmovies.adapters.ReviewAdapter;
 import com.abhinavjhanwar.android.popularmovies.adapters.TrailerAdapter;
 import com.abhinavjhanwar.android.popularmovies.api.MovieAPI;
+import com.abhinavjhanwar.android.popularmovies.utils.ReviewDetail;
+import com.abhinavjhanwar.android.popularmovies.utils.ReviewResponse;
 import com.abhinavjhanwar.android.popularmovies.utils.TrailerDetail;
 import com.abhinavjhanwar.android.popularmovies.utils.TrailerResponse;
 import com.ms.square.android.expandabletextview.ExpandableTextView;
@@ -50,6 +53,10 @@ public class ContentActivity extends AppCompatActivity {
     RecyclerView trailerRv;
     @BindView(R.id.trailerProgressBar)
     ProgressBar trailerProgressBar;
+    @BindView(R.id.review_rv)
+    RecyclerView reviewRv;
+    @BindView(R.id.reviewProgressBar)
+    ProgressBar reviewProgressBar;
 
     private String overView;
     private String posterURL;
@@ -59,8 +66,10 @@ public class ContentActivity extends AppCompatActivity {
     private float rating = (float) 2.5;
     private int id;
 
-    private ArrayList<TrailerDetail> data;
-    private TrailerAdapter adapter;
+    private ArrayList<TrailerDetail> trailerData;
+    private TrailerAdapter trailerAdapter;
+    private ArrayList<ReviewDetail> reviewData;
+    private ReviewAdapter reviewAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -90,8 +99,9 @@ public class ContentActivity extends AppCompatActivity {
         rating = bundle.getFloat("rating");
         id = bundle.getInt("id");
 
-        loadJSON();
         initViews();
+        loadTrailers();
+        loadReviews();
     }
 
     private void initViews() {
@@ -109,7 +119,7 @@ public class ContentActivity extends AppCompatActivity {
         ratingBar.setRating(rating);
     }
 
-    public void loadJSON() {
+    public void loadTrailers() {
         String baseURL = "http://api.themoviedb.org";
 
         // Use retrofit for loading URL and getting JSON
@@ -128,14 +138,14 @@ public class ContentActivity extends AppCompatActivity {
             @Override
             public void onResponse(Call<TrailerResponse> call, Response<TrailerResponse> response) {
                 TrailerResponse trailerResponse = response.body();
-                data = new ArrayList<>(Arrays.asList(trailerResponse.getResults()));
+                trailerData = new ArrayList<>(Arrays.asList(trailerResponse.getResults()));
                 // Build adapter based on json entries
-                adapter = new TrailerAdapter(getApplicationContext(), data);
+                trailerAdapter = new TrailerAdapter(getApplicationContext(), trailerData);
                 trailerRv.setVisibility(View.GONE);
-                if (adapter != null) {
+                if (trailerAdapter != null) {
                     //Hide progressbar and then show recyclerview after it's loaded
                     trailerRv.setLayoutManager(new LinearLayoutManager(getApplicationContext(), LinearLayoutManager.HORIZONTAL,false));
-                    trailerRv.setAdapter(adapter);
+                    trailerRv.setAdapter(trailerAdapter);
                     trailerProgressBar.setVisibility(View.GONE);
                     trailerRv.setVisibility(View.VISIBLE);
                 }
@@ -143,6 +153,45 @@ public class ContentActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(Call<TrailerResponse> call, Throwable t) {
+                Log.d("Error", t.getMessage());
+            }
+        });
+    }
+
+    public void loadReviews() {
+        String baseURL = "http://api.themoviedb.org";
+
+        // Use retrofit for loading URL and getting JSON
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl(baseURL)
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+
+        // Get JSON values, credits: https://www.learn2crack.com/2016/02/recyclerview-json-parsing.html
+        Call<ReviewResponse> call;
+        MovieAPI movieAPI = retrofit.create(MovieAPI.class);
+
+        call = movieAPI.getReviews(Integer.toString(id), BuildConfig.MOVIE_DB_API_KEY);
+
+        call.enqueue(new Callback<ReviewResponse>() {
+            @Override
+            public void onResponse(Call<ReviewResponse> call, Response<ReviewResponse> response) {
+                ReviewResponse reviewResponse = response.body();
+                reviewData = new ArrayList<>(Arrays.asList(reviewResponse.getResults()));
+                // Build adapter based on json entries
+                reviewAdapter = new ReviewAdapter(getApplicationContext(), reviewData);
+                reviewRv.setVisibility(View.GONE);
+                if (reviewAdapter != null) {
+                    //Hide progressbar and then show recyclerview after it's loaded
+                    reviewRv.setLayoutManager(new LinearLayoutManager(getApplicationContext(), LinearLayoutManager.HORIZONTAL,false));
+                    reviewRv.setAdapter(reviewAdapter);
+                    reviewProgressBar.setVisibility(View.GONE);
+                    reviewRv.setVisibility(View.VISIBLE);
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ReviewResponse> call, Throwable t) {
                 Log.d("Error", t.getMessage());
             }
         });

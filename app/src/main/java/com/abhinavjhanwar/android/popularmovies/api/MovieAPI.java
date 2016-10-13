@@ -1,6 +1,7 @@
 package com.abhinavjhanwar.android.popularmovies.api;
 
 import com.abhinavjhanwar.android.popularmovies.utils.MovieResponse;
+import com.abhinavjhanwar.android.popularmovies.utils.ReviewResponse;
 import com.abhinavjhanwar.android.popularmovies.utils.TrailerResponse;
 
 import retrofit2.Call;
@@ -17,4 +18,8 @@ public interface MovieAPI {
     //Get Trailers
     @GET("/3/movie/{id}/videos")
     Call<TrailerResponse> getTrailers(@Path("id") String sort, @Query("api_key") String api_key);
+
+    //Get Reviews
+    @GET("/3/movie/{id}/reviews")
+    Call<ReviewResponse> getReviews(@Path("id") String sort, @Query("api_key") String api_key);
 }

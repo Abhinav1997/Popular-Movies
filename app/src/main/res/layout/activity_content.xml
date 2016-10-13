@@ -170,7 +170,35 @@
             <android.support.v7.widget.RecyclerView
                 android:id="@+id/trailer_rv"
                 android:layout_marginTop="@dimen/activity_vertical_margin"
-                android:layout_below="@id/trailerTitle"
+                android:layout_marginBottom="@dimen/activity_vertical_margin"
+                android:layout_below="@id/trailerProgressBar"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"/>
+
+            <TextView
+                android:id="@+id/reviewTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/trailer_rv"
+                android:text="@string/reviews"
+                android:textStyle="bold"
+                android:textSize="24sp"/>
+
+            <ProgressBar
+                android:id="@+id/reviewProgressBar"
+                style="?android:attr/progressBarStyleLarge"
+                android:layout_below="@id/reviewTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="@dimen/activity_vertical_margin">
+            </ProgressBar>
+
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/review_rv"
+                android:layout_marginTop="@dimen/activity_vertical_margin"
+                android:layout_marginBottom="@dimen/activity_vertical_margin"
+                android:layout_below="@id/reviewTitle"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"/>
 
