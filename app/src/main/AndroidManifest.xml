@@ -19,6 +19,11 @@
             </intent-filter>
         </activity>
         <activity android:name=".ContentActivity" android:theme="@style/ContentTheme"/>
+
+        <provider
+            android:name=".provider.FavoriteProvider"
+            android:authorities="com.abhinavjhanwar.android.popularmovies"
+            android:exported="false" />
     </application>
 
 </manifest>

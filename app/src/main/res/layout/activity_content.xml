@@ -1,36 +1,44 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/parent_layout_content"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical">
 
-    <android.support.v7.widget.Toolbar xmlns:android="http://schemas.android.com/apk/res/android"
-        android:id="@+id/toolbar"
-        android:layout_width="match_parent"
-        android:layout_height="56dp"
-        app:theme="@style/toolbarTheme"
-        android:background="?attr/colorPrimary" />
+    <include android:id="@+id/toolbar"
+        layout="@layout/toolbar" />
 
-    <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:tools="http://schemas.android.com/tools"
+    <ScrollView
+        android:layout_marginTop="56dp"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
         <RelativeLayout
+
+            android:id="@+id/content_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:paddingTop="@dimen/activity_horizontal_margin"
             android:paddingLeft="@dimen/activity_horizontal_margin"
             android:paddingRight="@dimen/activity_horizontal_margin"
-            android:paddingTop="@dimen/activity_vertical_margin"
             tools:context="com.abhinavjhanwar.android.popularmovies.ContentActivity">
+
+            <android.support.v7.widget.CardView
+                android:id="@+id/content_card"
+                app:cardCornerRadius="@dimen/cardview_corner"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
 
             <ImageView
                 android:id="@+id/content_image"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:src="@drawable/placeholder"/>
+
+            </android.support.v7.widget.CardView>
 
             <TextView
                 android:id="@+id/movie_title"
@@ -39,7 +47,7 @@
                 android:textStyle="bold"
                 android:textSize="@dimen/content_movie_title_size"
                 android:layout_marginTop="@dimen/activity_vertical_margin"
-                android:layout_below="@id/content_image"/>
+                android:layout_below="@id/content_card"/>
 
             <com.ms.square.android.expandabletextview.ExpandableTextView
                 xmlns:expandableTextView="http://schemas.android.com/apk/res-auto"
@@ -74,8 +82,8 @@
                 android:layout_height="wrap_content"
                 android:text="@string/release_date"
                 android:layout_marginTop="@dimen/content_margin_top"
-                android:layout_toRightOf="@id/content_image"
-                android:layout_toEndOf="@id/content_image"
+                android:layout_toRightOf="@id/content_card"
+                android:layout_toEndOf="@id/content_card"
                 android:layout_marginLeft="@dimen/activity_vertical_margin"
                 android:layout_marginStart="@dimen/activity_vertical_margin"
                 android:textStyle="bold"
@@ -86,8 +94,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_below="@id/release_date_title"
-                android:layout_toRightOf="@id/content_image"
-                android:layout_toEndOf="@id/content_image"
+                android:layout_toRightOf="@id/content_card"
+                android:layout_toEndOf="@id/content_card"
                 android:layout_marginLeft="@dimen/activity_vertical_margin"
                 android:layout_marginStart="@dimen/activity_vertical_margin"/>
 
@@ -98,8 +106,8 @@
                 android:layout_below="@id/release_date"
                 android:layout_marginTop="@dimen/content_margin_top"
                 android:text="@string/genre"
-                android:layout_toRightOf="@id/content_image"
-                android:layout_toEndOf="@id/content_image"
+                android:layout_toRightOf="@id/content_card"
+                android:layout_toEndOf="@id/content_card"
                 android:layout_marginLeft="@dimen/activity_vertical_margin"
                 android:layout_marginStart="@dimen/activity_vertical_margin"
                 android:textStyle="bold"
@@ -110,8 +118,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_below="@id/genre_title"
-                android:layout_toRightOf="@id/content_image"
-                android:layout_toEndOf="@id/content_image"
+                android:layout_toRightOf="@id/content_card"
+                android:layout_toEndOf="@id/content_card"
                 android:layout_marginLeft="@dimen/activity_vertical_margin"
                 android:layout_marginStart="@dimen/activity_vertical_margin"/>
 
@@ -122,31 +130,31 @@
                 android:layout_below="@id/genre"
                 android:layout_marginTop="@dimen/content_margin_top"
                 android:text="@string/rating"
-                android:layout_toRightOf="@id/content_image"
-                android:layout_toEndOf="@id/content_image"
+                android:layout_toRightOf="@id/content_card"
+                android:layout_toEndOf="@id/content_card"
                 android:layout_marginLeft="@dimen/activity_vertical_margin"
                 android:layout_marginStart="@dimen/activity_vertical_margin"
                 android:textStyle="bold"
                 android:textSize="@dimen/content_titles_size"/>
 
             <RatingBar
-            android:id="@+id/ratingBar"
-            android:scaleX="0.5"
-            android:scaleY="0.5"
-            android:transformPivotX="0dp"
-            android:layout_marginRight="-100dp"
-            android:layout_marginEnd="-100dp"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/rating_title"
-            android:layout_marginTop="@dimen/content_margin_top"
-            android:layout_toRightOf="@id/content_image"
-            android:layout_toEndOf="@id/content_image"
-            android:layout_marginLeft="@dimen/activity_vertical_margin"
-            android:layout_marginStart="@dimen/activity_vertical_margin"
-            android:numStars="5"
-            android:stepSize="0.001"
-            android:rating="2.5" />
+                android:id="@+id/ratingBar"
+                android:scaleX="0.5"
+                android:scaleY="0.5"
+                android:transformPivotX="0dp"
+                android:layout_marginRight="-100dp"
+                android:layout_marginEnd="-100dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/rating_title"
+                android:layout_marginTop="@dimen/content_margin_top"
+                android:layout_toRightOf="@id/content_card"
+                android:layout_toEndOf="@id/content_card"
+                android:layout_marginLeft="@dimen/activity_vertical_margin"
+                android:layout_marginStart="@dimen/activity_vertical_margin"
+                android:numStars="5"
+                android:stepSize="0.001"
+                android:rating="2.5" />
 
             <TextView
                 android:id="@+id/trailerTitle"
@@ -203,5 +211,20 @@
                 android:layout_height="match_parent"/>
 
         </RelativeLayout>
+
     </ScrollView>
-</LinearLayout>
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/favfab"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/ic_favorite_black"
+        android:clickable="true"
+        app:borderWidth="2dp"
+        app:rippleColor="@color/colorPrimaryDark"
+        app:layout_anchor="@id/content_layout"
+        app:layout_anchorGravity="bottom|right|end"
+        android:layout_margin="@dimen/content_margin_top"
+        app:fabSize="normal" />
+
+</android.support.design.widget.CoordinatorLayout>

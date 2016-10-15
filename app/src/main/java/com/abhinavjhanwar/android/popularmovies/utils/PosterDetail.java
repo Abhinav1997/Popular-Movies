@@ -5,13 +5,14 @@ import android.os.Parcelable;
 
 public class PosterDetail implements Parcelable {
 
+    private int id;
     private String poster_path;
     private String title;
     private String overview;
     private String release_date;
     private int[] genre_ids;
+    private int genre_id;
     private float vote_average;
-    private int id;
 
     protected PosterDetail(Parcel in) {
         poster_path = in.readString();
@@ -21,6 +22,7 @@ public class PosterDetail implements Parcelable {
         genre_ids = in.createIntArray();
         vote_average = in.readFloat();
         id = in.readInt();
+        genre_id = genre_ids[0];
     }
 
     public static final Creator<PosterDetail> CREATOR = new Creator<PosterDetail>() {
@@ -61,6 +63,10 @@ public class PosterDetail implements Parcelable {
 
     public int getId() {
         return id;
+    }
+
+    public int getGenre_id() {
+        return genre_id;
     }
 
     @Override

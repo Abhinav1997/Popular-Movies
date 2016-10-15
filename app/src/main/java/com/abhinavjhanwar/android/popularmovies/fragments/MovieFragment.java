@@ -1,12 +1,17 @@
 package com.abhinavjhanwar.android.popularmovies.fragments;
 
 
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.database.Cursor;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.CursorLoader;
+import android.support.v4.content.Loader;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -20,6 +25,8 @@ import android.widget.ProgressBar;
 
 import com.abhinavjhanwar.android.popularmovies.BuildConfig;
 import com.abhinavjhanwar.android.popularmovies.adapters.DataAdapter;
+import com.abhinavjhanwar.android.popularmovies.adapters.FavoriteAdapter;
+import com.abhinavjhanwar.android.popularmovies.provider.FavoriteProvider;
 import com.abhinavjhanwar.android.popularmovies.utils.GridAutofitLayoutManager;
 import com.abhinavjhanwar.android.popularmovies.utils.MovieResponse;
 import com.abhinavjhanwar.android.popularmovies.api.MovieAPI;
@@ -49,6 +56,7 @@ public class MovieFragment extends Fragment {
 
     private ArrayList<PosterDetail> data;
     private DataAdapter adapter;
+    private FavoriteAdapter favoriteAdapter;
     private ProgressBar progressBar;
     private Unbinder unbinder;
     private AlertDialog levelDialog;
@@ -56,7 +64,10 @@ public class MovieFragment extends Fragment {
     private String sortOption;
     private final String topRated = "top_rated";
     private final String mostPopular = "popular";
+    private final String favorite = "favorite";
     private final String sortEntry = "SORT";
+
+    private Cursor cursor;
 
     private int savedInstance = 0;
 
@@ -136,42 +147,49 @@ public class MovieFragment extends Fragment {
         Call<MovieResponse> call;
         MovieAPI movieAPI = retrofit.create(MovieAPI.class);
 
-        if (sortOption.equals(topRated)) {
-            call = movieAPI.getMovies(topRated, BuildConfig.MOVIE_DB_API_KEY);
-        } else {
-            call = movieAPI.getMovies(mostPopular, BuildConfig.MOVIE_DB_API_KEY);
-        }
+        if (sortOption.equals(topRated) || sortOption.equals(mostPopular)) {
+            if (sortOption.equals(topRated)) {
+                call = movieAPI.getMovies(topRated, BuildConfig.MOVIE_DB_API_KEY);
+            } else {
+                call = movieAPI.getMovies(mostPopular, BuildConfig.MOVIE_DB_API_KEY);
+            }
 
-        call.enqueue(new Callback<MovieResponse>() {
-            @Override
-            public void onResponse(Call<MovieResponse> call, Response<MovieResponse> response) {
-                MovieResponse movieResponse = response.body();
-                if (savedInstance == 0 || data == null) {
-                    data = new ArrayList<>(Arrays.asList(movieResponse.getResults()));
-                }
-                if (getActivity() != null) {
-                    // Build adapter based on json entries
-                    adapter = new DataAdapter(getActivity().getApplicationContext(), data);
-                    recyclerView.setVisibility(View.GONE);
-                    if (adapter != null) {
-                        //Hide progressbar and then show recyclerview after it's loaded
-                        recyclerView.setAdapter(adapter);
-                        progressBar.setVisibility(View.GONE);
-                        setHasOptionsMenu(true);
-                        recyclerView.setVisibility(View.VISIBLE);
+            call.enqueue(new Callback<MovieResponse>() {
+                @Override
+                public void onResponse(Call<MovieResponse> call, Response<MovieResponse> response) {
+                    MovieResponse movieResponse = response.body();
+                    if (savedInstance == 0 || data == null) {
+                        data = new ArrayList<>(Arrays.asList(movieResponse.getResults()));
+                    }
+                    if (getActivity() != null) {
+                        // Build adapter based on json entries
+                        adapter = new DataAdapter(getActivity().getApplicationContext(), data);
+                        recyclerView.setVisibility(View.GONE);
+                        if (adapter != null) {
+                            //Hide progressbar and then show recyclerview after it's loaded
+                            recyclerView.setAdapter(adapter);
+                            progressBar.setVisibility(View.GONE);
+                            setHasOptionsMenu(true);
+                            recyclerView.setVisibility(View.VISIBLE);
+                        }
                     }
                 }
-            }
 
-            @Override
-            public void onFailure(Call<MovieResponse> call, Throwable t) {
-                Log.d("Error", t.getMessage());
+                @Override
+                public void onFailure(Call<MovieResponse> call, Throwable t) {
+                    Log.d("Error", t.getMessage());
+                }
+            });
+        } else {
+            if (getActivity() != null) {
+                // Build adapter based on json entries
+                retrieveShopsFromDatabase();
             }
-        });
+        }
     }
 
     public void sortCreate() {
-        final CharSequence[] items = {getResources().getString(R.string.action_sort_by_most_popular), getResources().getString(R.string.action_sort_by_top_rated)};
+        final CharSequence[] items = {getResources().getString(R.string.action_sort_by_most_popular), getResources().getString(R.string.action_sort_by_top_rated), getResources().getString(R.string.action_sort_by_favorites)};
         int i = 0;
 
         // Creating and Building the Dialog
@@ -179,6 +197,8 @@ public class MovieFragment extends Fragment {
         builder.setTitle("Sort by");
         if (sortOption.equals(topRated)) {
             i = 1;
+        } else if(sortOption.equals(favorite)) {
+            i = 2;
         }
         builder.setSingleChoiceItems(items, i, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int item) {
@@ -188,6 +208,9 @@ public class MovieFragment extends Fragment {
                         break;
                     case 1:
                         PreferenceManager.getDefaultSharedPreferences(getActivity().getApplicationContext()).edit().putString(sortEntry, topRated).apply();
+                        break;
+                    case 2:
+                        PreferenceManager.getDefaultSharedPreferences(getActivity().getApplicationContext()).edit().putString(sortEntry, favorite).apply();
                         break;
                 }
                 levelDialog.dismiss();
@@ -208,6 +231,54 @@ public class MovieFragment extends Fragment {
         });
         levelDialog = builder.create();
         levelDialog.show();
+    }
+
+    private void retrieveShopsFromDatabase() {
+        getActivity().getSupportLoaderManager()
+                .initLoader(R.id.loader_favorite, null, new LoaderManager.LoaderCallbacks<Cursor>() {
+
+                    @Override
+                    public Loader<Cursor> onCreateLoader(int i, Bundle bundle) {
+                        return new FavoriteCursorLoader(getActivity());
+                    }
+
+                    @Override
+                    public void onLoadFinished(Loader<Cursor> cursorLoader, Cursor dataCursor) {
+                        if (!dataCursor.moveToFirst()) {
+                            Log.d("demo", "Nothing in DB, returning early");
+                        }
+
+                        cursor = dataCursor;
+
+                        favoriteAdapter = new FavoriteAdapter(getActivity().getApplicationContext(), cursor);
+                        recyclerView.setVisibility(View.GONE);
+                        if (dataCursor.getCount() != 0 && !dataCursor.isAfterLast()) {
+                            //Hide progressbar and then show recyclerview after it's loaded
+                            dataCursor.moveToFirst();
+                            recyclerView.setAdapter(favoriteAdapter);
+                            progressBar.setVisibility(View.GONE);
+                            setHasOptionsMenu(true);
+                            recyclerView.setVisibility(View.VISIBLE);
+                        } else {
+                            progressBar.setVisibility(View.GONE);
+                            setHasOptionsMenu(true);
+                            Log.d("FAV", "NONE");
+                        }
+
+                    }
+
+                    @Override
+                    public void onLoaderReset(Loader<Cursor> cursorLoader) {
+
+                    }
+                });
+    }
+
+    private static class FavoriteCursorLoader extends CursorLoader {
+
+        public FavoriteCursorLoader(Context context) {
+            super(context, FavoriteProvider.FAVORITES, null, null, null, null);
+        }
     }
 
     // When binding a fragment in onCreateView, set the views to null in onDestroyView.

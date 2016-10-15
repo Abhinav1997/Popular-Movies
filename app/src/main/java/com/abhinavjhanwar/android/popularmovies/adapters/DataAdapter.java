@@ -42,17 +42,25 @@ public class DataAdapter extends RecyclerView.Adapter<DataAdapter.ViewHolder> {
     @Override
     public void onBindViewHolder(DataAdapter.ViewHolder viewHolder, int i) {
 
-        final String URL = "http://image.tmdb.org/t/p/w185" + poster.get(i).getPoster_path();
-        final String imageURL = "http://image.tmdb.org/t/p/w500" + poster.get(i).getPoster_path();
-        final String overView = poster.get(i).getOverview();
-        final String title = poster.get(i).getTitle();
-        final String releaseDate = poster.get(i).getRelease_date();
-        int genreId[] = poster.get(i).getGenre_ids();
-        final String genre = getGenre(genreId[0]);
-        final float rating = (poster.get(i).getVote_average()) / 2;
-        final int id = poster.get(i).getId();
+        final String URL;
+        final String overView;
+        final String title;
+        final String releaseDate;
+        final int genreId;
+        final String genre;
+        final String posterID;
+        final float rating;
+        final int id;
+        posterID = poster.get(i).getPoster_path();
+        URL = "http://image.tmdb.org/t/p/w185" + posterID;
+        overView = poster.get(i).getOverview();
+        title = poster.get(i).getTitle();
+        releaseDate = poster.get(i).getRelease_date();
+        genreId = poster.get(i).getGenre_id();
+        genre = getGenre(genreId);
+        rating = (poster.get(i).getVote_average()) / 2;
+        id = poster.get(i).getId();
 
-        viewHolder.textView.setText(poster.get(i).getTitle());
         Picasso
                 .with(context)
                 .load(URL)
@@ -65,6 +73,7 @@ public class DataAdapter extends RecyclerView.Adapter<DataAdapter.ViewHolder> {
                                 .intoBackground(viewHolder.textView, PicassoPalette.Swatch.RGB)
                 );
 
+        viewHolder.textView.setText(title);
         viewHolder.cardView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -74,7 +83,7 @@ public class DataAdapter extends RecyclerView.Adapter<DataAdapter.ViewHolder> {
                 bundle.putInt("id", id);
                 Intent intent = new Intent(context, ContentActivity.class);
                 intent.putExtra("overview", overView);
-                intent.putExtra("poster", imageURL);
+                intent.putExtra("poster", posterID);
                 intent.putExtra("title", title);
                 intent.putExtra("release-date", releaseDate);
                 intent.putExtra("genre", genre);

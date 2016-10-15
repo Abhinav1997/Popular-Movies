@@ -9,6 +9,7 @@
     <string name="action_sort">Sort by</string>
     <string name="action_sort_by_most_popular">Most popular</string>
     <string name="action_sort_by_top_rated">Top rated</string>
+    <string name="action_sort_by_favorites">Favorites</string>
 
     <string name="release_date">Release date</string>
     <string name="genre">Genre</string>
@@ -19,6 +20,11 @@
 
     <string name="reviews">Reviews</string>
     <string name="author">Author :\u0020</string>
+
+    <string name="action_add_fav">Added to favorites</string>
+    <string name="action_remove_fav">Removed from favorites</string>
+
+    <string name="share">Share</string>
 
     <string name="down_arrow">\u25bc</string>
 </resources>
